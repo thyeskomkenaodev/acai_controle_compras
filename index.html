@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Açaí Ranch | Controle Quinzenal</title>
+    <meta name="description"
+        content="Sistema de gestão de adicionais e mantimentos para Açaí Ranch. Controle seu estoque e custos por quinzena.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="banner-container fade-in">
+            <div class="banner-overlay"></div>
+            <!-- Falling Scoops -->
+            <div class="scoop s1"><i class="fas fa-ice-cream"></i></div>
+            <div class="scoop s2"><i class="fas fa-ice-cream"></i></div>
+            <div class="scoop s3"><i class="fas fa-ice-cream"></i></div>
+            
+            <img src="https://img.icons8.com/color/48/nutella.png" alt="nutella" class="banner-icon-left">
+            <img src="https://img.icons8.com/3d-fluency/94/strawberry.png" alt="strawberry" class="banner-icon-strawberry">
+            <div class="banner-logo-wrapper">
+                <img src="https://img.icons8.com/external-sbts2018-flat-sbts2018/512/external-analyst-women-profession-sbts2018-flat-sbts2018.png" alt="Analyst Icon" class="banner-logo">
+                <h2 class="user-name">Bruna</h2>
+            </div>
+            <img src="https://img.icons8.com/arcade/64/cereal.png" alt="cereal" class="banner-icon-cereal">
+            <img src="https://img.icons8.com/officel/80/milkshake.png" alt="milkshake" class="banner-icon-secondary">
+        </div>
+        <header class="fade-in" style="animation-delay: 0.1s;">
+            <div class="brand">
+                <i class="fas fa-ice-cream" style="color: var(--secondary);"></i>
+                Açaí <span style="color: var(--primary);">Ranch</span>
+            </div>
+            <div class="fortnight-selector">
+                <button id="prevFortnight"><i class="fas fa-chevron-left"></i></button>
+                <div class="current-period" id="currentPeriodDisplay">1ª Quinzena - Abril 2024</div>
+                <button id="nextFortnight"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </header>
+
+        <section class="summary-grid fade-in" style="animation-delay: 0.1s;">
+            <div class="stat-card">
+                <div class="stat-label">Investimento (Compras)</div>
+                <div class="stat-value spent" id="totalInvestmentDisplay">R$ 0,00</div>
+                <div class="budget-progress-container">
+                    <div class="budget-progress-bar" id="budgetBar"></div>
+                </div>
+                <div class="stat-label" style="font-size: 0.7rem; margin-top: 0.5rem;" id="budgetLabel">Orçamento: R$
+                    0,00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Lucro Bruto (Real)</div>
+                <div class="stat-value" id="totalProfitDisplay" style="color: var(--success);">R$ 0,00</div>
+                <div class="stat-label" style="font-size: 0.7rem; margin-top: 0.5rem;" id="marginLabel">Margem: 0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Itens com Estoque Baixo</div>
+                <div class="stat-value remaining" id="lowStockCount">0</div>
+            </div>
+        </section>
+
+        <!-- Finance Config Section -->
+        <section class="finance-config fade-in" style="animation-delay: 0.15s;">
+            <div class="config-grid">
+                <div class="config-item">
+                    <label>Faturamento da Quinzena (R$)</label>
+                    <input type="number" id="revenueInput" placeholder="Ex: 5000" step="0.01">
+                </div>
+                <div class="config-item">
+                    <label>Orçamento de Compras (R$)</label>
+                    <input type="number" id="budgetInput" placeholder="Ex: 2000" step="0.01">
+                </div>
+                <button class="btn-submit" id="saveFinance" style="margin-top: auto; padding: 0.6rem;">
+                    <i class="fas fa-save"></i> Atualizar Financeiro
+                </button>
+            </div>
+        </section>
+
+        <main class="fade-in" style="animation-delay: 0.2s;">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="adicionais">Adicionais</button>
+                <button class="tab-btn" data-tab="mantimentos">Mantimentos</button>
+                <button class="tab-btn" data-tab="relatorios">Relatórios</button>
+            </div>
+
+            <div class="actions-bar">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar item...">
+                    </div>
+                    <span id="saveIndicator"
+                        style="font-size: 0.75rem; color: var(--success); opacity: 0; transition: opacity 0.5s;">
+                        <i class="fas fa-check-circle"></i> Salvo automaticamente
+                    </span>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn-add" id="exportPDF"
+                        style="background: var(--surface); color: var(--primary); border: 1px solid var(--primary);">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <button class="btn-add" id="openAddModal">
+                        <i class="fas fa-plus"></i> Novo Item
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="inventoryTable">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Unidade</th>
+                            <th>Qtd Inicial</th>
+                            <th>Entradas</th>
+                            <th>Qtd Final</th>
+                            <th>Preço Un.</th>
+                            <th>Total Compra</th>
+                            <th>Custo Uso</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryBody">
+                        <!-- Items will be injected here by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Reports Section (Hidden by default) -->
+            <div id="reportsSection" style="display: none;" class="fade-in">
+                <div class="report-grid">
+                    <div class="report-card">
+                        <h3><i class="fas fa-crown" style="color: var(--secondary);"></i> Ranking de Adicionais mais
+                            Utilizados</h3>
+                        <p class="stat-label">Calculado com base em: Inicial + Entradas - Final</p>
+                        <div class="chart-container" style="position: relative; height:400px; width:100%">
+                            <canvas id="rankingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Adding/Editing Items -->
+    <div class="modal-overlay" id="itemModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Novo Item</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <form id="itemForm">
+                <input type="hidden" id="itemId">
+                <div class="form-group">
+                    <label for="itemName">Nome do Item</label>
+                    <input type="text" id="itemName" required placeholder="Ex: Nutella 3kg">
+                </div>
+                <div class="form-group">
+                    <label for="itemCategory">Categoria</label>
+                    <select id="itemCategory">
+                        <option value="adicionais">Adicionais</option>
+                        <option value="mantimentos">Mantimentos</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="itemUnit">Unidade</label>
+                        <select id="itemUnit">
+                            <option value="un">Unidade (un)</option>
+                            <option value="kg">Quilo (kg)</option>
+                            <option value="l">Litro (l)</option>
+                            <option value="cx">Caixa (cx)</option>
+                            <option value="pt">Pote (pt)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemMinStock">Estoque Mínimo</label>
+                        <input type="number" id="itemMinStock" step="0.01" value="0">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="itemInitialStock">Qtd Inicial</label>
+                        <input type="number" id="itemInitialStock" step="0.01" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemPurchases">Entradas (Compras)</label>
+                        <input type="number" id="itemPurchases" step="0.01" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="itemFinalStock">Qtd Final</label>
+                    <input type="number" id="itemFinalStock" step="0.01" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="itemUnitPrice">Preço Unitário (R$)</label>
+                    <input type="number" id="itemUnitPrice" step="0.01" value="0">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button>
+                    <button type="submit" class="btn-submit">Salvar Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Script -->
+    <script src="script.js"></script>
+</body>
+
+</html>
